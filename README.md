@@ -1,8 +1,12 @@
 # React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+untuk instalasi ketikan command di terminal 
+npm i
 
-Currently, two official plugins are available:
+untuk login 
+password : 12345678
+username : - admin
+           - gudang
+           - kasir
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+note : masih hanya sekedar tampilan dan belum terkoneksi database
