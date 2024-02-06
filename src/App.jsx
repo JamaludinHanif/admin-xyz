@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login/Login";
 import LogActivity from "./pages/admin/LogActivity";
 import KelolaUser from "./pages/admin/KelolaUser";
 import LaporanPenjualan from "./pages/admin/LaporanPenjualan";
 import KelolaBarang from "./pages/gudang/KelolaBarang";
 import KelolaTransaksi from "./pages/kasir/KelolaTransaksi";
+import Login from "./pages/Login/Login";
 
 function App() {
   return (
