@@ -10,7 +10,3 @@ username : - admin
            - kasir
 
 note : masih hanya sekedar tampilan dan belum terkoneksi database
-
-
-
-Jamalssss
