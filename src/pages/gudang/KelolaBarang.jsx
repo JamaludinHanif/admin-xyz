@@ -2,24 +2,126 @@ import React from "react";
 import SideBar from "../../components/sidebar/SideBar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { message, Modal } from "antd";
+import { API } from "../../config/api";
+import { currencyFormatter } from "../../config/currencyFormatter";
+import moment from "moment";
 
 const KelolaBarang = () => {
   // sesionStorage
   let type = sessionStorage.getItem("type");
-  console.log("ini type user", type);
+  // console.log("ini type user", type);
 
   // react-router-dom
   const navigate = useNavigate();
 
   // usestate
+  const [IsOpen, setIsOpen] = useState();
   const [Search, setSearch] = useState();
+  const [DataProduk, setDataProduk] = useState();
+  const [IdProduk, setIdProduk] = useState();
   // form
   const [KodeBarang, setKodeBarang] = useState();
   const [JumlahBarang, setJumlahBarang] = useState();
   const [NamaBarang, setNamaBarang] = useState();
-  const [Satuan, setSatuan] = useState();
+  const [Satuan, setSatuan] = useState(0);
   const [Expired, setExpired] = useState();
-  const [HargaSatuan, setHargaSatuan] = useState();
+  const [HargaSatuan, setHargaSatuan] = useState(0);
+
+  // console.log('ini input data', Expired)
+
+  // antd function
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
+
+    // select product
+    const selectProduct = (data) => {
+      setIdProduk(data?.id_barang);
+      setKodeBarang(data?.kode_barang);
+      setNamaBarang(data?.nama_barang);
+      setExpired(data?.expired_date);
+      setJumlahBarang(data?.jumlah_barang);
+      setSatuan(data?.satuan);
+      setHargaSatuan(data?.harga_satuan);
+    };
+
+  const body = {
+    kode_barang: KodeBarang,
+    nama_barang: NamaBarang,
+    expired_date: Expired,
+    jumlah_barang: JumlahBarang,
+    satuan: Satuan,
+    harga_satuan: HargaSatuan,
+  };
+
+  const getAllProducts = async () => {
+    await axios
+      .get(`${API.BASE_URL}/produk`)
+      .then((response) => {
+        console.log("ini respons dari api users", response?.data);
+        setDataProduk(response?.data?.data);
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  const createNewProduct = async () => {
+    await axios
+      .post(`${API.BASE_URL}/produk`, body)
+      .then((response) => {
+        console.log("ini respons dari api users", response?.data);
+        if (response?.data?.status == true) {
+          location.reload();
+        } else {
+          message.error("gagal menambahkan data");
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  const updateProduk = async () => {
+    await axios
+      .patch(`${API.BASE_URL}/produk?id=${IdProduk}`, body)
+      .then((response) => {
+        console.log("ini response dari api", response?.data);
+        if (response?.data?.status == true) {
+          location.reload();
+        } else {
+          message.error("gagal mengubah data");
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  const deleteProduk = async () => {
+    await axios
+      .delete(`${API.BASE_URL}/produk?id=${IdProduk}`)
+      .then((response) => {
+        console.log("ini response dari api", response?.data);
+        if (response?.data?.status == true) {
+          location.reload();
+        } else {
+          message.error("gagal menghapus data");
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  useEffect(() => {
+    getAllProducts();
+  }, []);
 
   return (
     <>
@@ -104,13 +206,13 @@ const KelolaBarang = () => {
           {/* tombol action */}
           <div className="px-28 mt-5">
             <div className="flex flex-row">
-              <div className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+              <div onClick={() => createNewProduct()} className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
                 <p className="font-semibold text-center">Tambah</p>
               </div>
-              <div className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80">
+              <div onClick={() => updateProduk()} className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80">
                 <p className="font-semibold text-center">Edit</p>
               </div>
-              <div className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+              <div onClick={() => deleteProduk()} className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
                 <p className="font-semibold text-center">Hapus</p>
               </div>
             </div>
@@ -132,6 +234,7 @@ const KelolaBarang = () => {
             />
           </div>
 
+          {/* tabel */}
           <div className="px-28 mt-10 h-44 overflow-y-scroll">
             <table className="table-auto w-full">
               <tr>
@@ -178,121 +281,33 @@ const KelolaBarang = () => {
                   Harga Satuan
                 </th>
               </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  CR7
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  LM10
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jersey Emyu
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  20/05/2007
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  101
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Pcs
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Rp. 67.000
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  CR7
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  LM10
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jersey Emyu
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  20/05/2007
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  101
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Pcs
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Rp. 67.000
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  CR7
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  LM10
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jersey Emyu
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  20/05/2007
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  101
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Pcs
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Rp. 67.000
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  CR7
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  LM10
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jersey Emyu
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  20/05/2007
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  101
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Pcs
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Rp. 67.000
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  CR7
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  LM10
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jersey Emyu
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  20/05/2007
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  101
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Pcs
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Rp. 67.000
-                </td>
-              </tr>
+              {DataProduk?.map((produk, index) => (
+                <>
+                  <tr onClick={() => selectProduct(produk)} className="cursor-pointer hover:bg-slate-200" key={produk?.id_barang}>
+                    <td className="border border-black py-2 text-center font-semibold">
+                      {produk?.id_barang}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {produk?.kode_barang}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {produk?.nama_barang}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {moment(produk?.expired_date).format('DD/MM/YYYY')}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {produk?.jumlah_barang}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {produk?.satuan}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {currencyFormatter.format(produk?.harga_satuan)}
+                    </td>
+                  </tr>
+                </>
+              ))}
             </table>
           </div>
         </div>

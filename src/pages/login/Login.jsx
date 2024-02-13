@@ -3,6 +3,8 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { API } from "../../config/api";
 
 const Login = () => {
   // react router dom
@@ -10,37 +12,47 @@ const Login = () => {
 
   // sessionStorage
   let isLoggedIn = sessionStorage.getItem("@isLoggedIn");
-  console.log("ini logied", isLoggedIn);
+  // console.log("ini logied", isLoggedIn);
   let type = sessionStorage.getItem("type");
 
   // state
   const [UserName, setUserName] = useState();
   const [Password, setPassword] = useState();
 
+  const body = {
+    username: UserName,
+    password: Password,
+  };
+
+  console.log("ini body", body);
+
   // function login
-  const login = (event) => {
-    event.preventDefault();
-
-    if (Password == 12345678) {
-      if (UserName == "kasir") {
-        navigate("/kelola-transaksi");
-        sessionStorage.setItem("type", "kasir");
-        sessionStorage.setItem("@isLoggedIn", true);
-      } else if (UserName == "admin") {
-        navigate("/login-activity");
-        sessionStorage.setItem("type", "admin");
-        sessionStorage.setItem("@isLoggedIn", true);
-      } else if (UserName == "gudang") {
-        navigate("/kelola-barang");
-        sessionStorage.setItem("type", "gudang");
-        sessionStorage.setItem("@isLoggedIn", true);
-      } else {
-        message.info("user tidak di temukan");
-      }
-    } else {
-      message.error("password salah");
-    }
-
+  const login = async () => {
+    await axios
+      .post(`${API.BASE_URL}/login`, body)
+      .then((response) => {
+        console.log("ini response dari api login", response?.data);
+        if (response?.data?.status == true) {
+          message.success("Login Berhasil");
+          if (response?.data?.loginAs == "kasir") {
+            navigate("/kelola-transaksi");
+            sessionStorage.setItem("type", "kasir");
+          } else if (response?.data?.loginAs == "gudang") {
+            navigate("/kelola-barang");
+            sessionStorage.setItem("type", "gudang");
+          } else if (response?.data?.loginAs == "admin") {
+            navigate("/login-activity");
+            sessionStorage.setItem("type", "admin");
+          } else {
+            message.info("kamu tidak dapat mengakses halaman admin");
+          }
+        } else {
+          message.error(response?.data?.message);
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
   };
 
   // middleware
@@ -54,7 +66,7 @@ const Login = () => {
         navigate("/login-activity");
       }
     } else {
-      navigate('/')
+      navigate("/");
     }
   };
 
@@ -75,41 +87,39 @@ const Login = () => {
         <p className="text-center font-bold text-4xl px-36">Food XYZ</p>
         {/* form input */}
         <div className="w-10/12 m-auto mt-7">
-          <form onSubmit={login}>
-            <input
-              type="text"
-              value={UserName}
-              onChange={(e) => setUserName(e.target.value)}
-              className="w-full bg-slate-200 rounded-md placeholder:text-gray-500 placeholder:text-sm py-3 px-3 mb-4"
-              required
-              placeholder="User Name"
-            />{" "}
-            <br />
-            <input
-              type="password"
-              value={Password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="off"
-              className="w-full bg-slate-200 rounded-md py-3 px-3 placeholder:text-gray-500 placeholder:text-sm mb-4"
-              required
-              placeholder="Password"
-            />
-            {/* button */}
-            <div className="flex">
-              <button
-                // onClick={(e) => {
-                //   e.preventDefault();
-                // }}
-                className="w-6/12 mr-1 py-2 bg-blue-400 rounded-lg hover:opacity-80"
-                type="submit"
-              >
-                Login
-              </button>
-              <button className="w-6/12 ml-1 py-2 bg-gray-400 rounded-lg hover:opacity-80">
-                Reset
-              </button>
-            </div>
-          </form>
+          {/* <form onSubmit={login}> */}
+          <input
+            type="text"
+            value={UserName}
+            onChange={(e) => setUserName(e.target.value)}
+            className="w-full bg-slate-200 rounded-md placeholder:text-gray-500 placeholder:text-sm py-3 px-3 mb-4"
+            required
+            placeholder="User Name"
+          />{" "}
+          <br />
+          <input
+            type="password"
+            value={Password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="off"
+            className="w-full bg-slate-200 rounded-md py-3 px-3 placeholder:text-gray-500 placeholder:text-sm mb-4"
+            required
+            placeholder="Password"
+          />
+          {/* button */}
+          <div className="flex">
+            <button
+              onClick={() => login()}
+              className="w-6/12 mr-1 py-2 bg-blue-400 rounded-lg hover:opacity-80"
+              type="submit"
+            >
+              Login
+            </button>
+            <button className="w-6/12 ml-1 py-2 bg-gray-400 rounded-lg hover:opacity-80">
+              Reset
+            </button>
+          </div>
+          {/* </form> */}
         </div>
       </div>
     </div>

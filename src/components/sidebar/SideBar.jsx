@@ -5,7 +5,7 @@ const SideBar = (type) => {
   // react-router-dom
   const navigate = useNavigate();
 
-  console.log("dari sidebar", type.type);
+  // console.log("dari sidebar", type.type);
 
   //   function
   const logout = () => {
@@ -25,7 +25,7 @@ const SideBar = (type) => {
               </>
             ) : type.type == "kasir" ? (
               <>
-                <p>Kasir</p>
+                <p>Kasir</p> 
               </>
             ) : type.type == "admin" ? (
               <>

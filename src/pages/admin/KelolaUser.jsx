@@ -2,12 +2,14 @@ import React from "react";
 import SideBar from "../../components/sidebar/SideBar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Modal } from "antd";
+import { Modal, message } from "antd";
+import axios from "axios";
+import { API } from "../../config/api";
 
 const KelolaUser = () => {
   // sesionStorage
   let type = sessionStorage.getItem("type");
-  console.log("ini type user", type);
+  // console.log("ini type user", type);
 
   // react-router-dom
   const navigate = useNavigate();
@@ -15,7 +17,10 @@ const KelolaUser = () => {
   // usestate
   const [IsOpen, setIsOpen] = useState(false);
   const [Search, setSearch] = useState();
+  const [DataUsers, setDataUsers] = useState();
+  const [Tes, setTes] = useState();
   // form state
+  const [IdUser, setIdUser] = useState();
   const [TypeUser, setTypeUser] = useState();
   const [Alamat, setAlamat] = useState();
   const [Nama, setNama] = useState();
@@ -30,6 +35,92 @@ const KelolaUser = () => {
   const handleCancel = () => {
     setIsOpen(false);
   };
+
+  // select user
+  const selectUser = (data) => {
+    setIdUser(data?.id_user);
+    setTypeUser(data?.tipe_user);
+    setAlamat(data?.alamat);
+    setNama(data?.nama);
+    setUserName(data?.username);
+    setTelepon(data?.telepon);
+    setPassword(data?.password);
+  };
+
+  const body = {
+    tipe_user: TypeUser,
+    nama: Nama,
+    alamat: Alamat,
+    telepon: Telepon,
+    username: UserName,
+    password: Password,
+  };
+
+  const getAllUsers = async () => {
+    await axios
+      .get(`${API.BASE_URL}/users`)
+      .then((response) => {
+        console.log("ini respons dari api users", response?.data);
+        setDataUsers(response?.data?.data);
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  const createNewUser = async () => {
+    await axios
+      .post(`${API.BASE_URL}/users`, body)
+      .then((response) => {
+        console.log("ini respons dari api users", response?.data);
+        if (response?.data?.status == true) {
+          location.reload();
+        } else {
+          message.error("gagal menambahkan data");
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  const deleteUser = async () => {
+    await axios
+      .delete(`${API.BASE_URL}/users?id=${IdUser}`)
+      .then((response) => {
+        console.log("ini response dari api", response?.data);
+        if (response?.data?.status == true) {
+          location.reload();
+        } else {
+          message.error("gagal menghapus data");
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  const updateUser = async () => {
+    await axios
+      .patch(`${API.BASE_URL}/users?id=${IdUser}`, body)
+      .then((response) => {
+        console.log("ini response dari api", response?.data);
+        if (response?.data?.status == true) {
+          location.reload();
+        } else {
+          message.error("gagal mengubah data");
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  console.log("ini BODY", body);
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
 
   return (
     <>
@@ -51,7 +142,17 @@ const KelolaUser = () => {
                   onClick={handleOpen}
                   className="bg-gray-200 text-sm w-full py-2 rounded-md cursor-pointer px-3"
                 >
-                  <p className="">Gudang</p>
+                  <p className="">
+                    {TypeUser == "gudang" ? (
+                      <>Gudang</>
+                    ) : TypeUser == "kasir" ? (
+                      <>Kasir</>
+                    ) : TypeUser == "admin" ? (
+                      <>Admin</>
+                    ) : (
+                      <>Pilih Tipe User</>
+                    )}
+                  </p>
                 </div>
               </div>
               <div className="w-1/2 ml-10">
@@ -114,13 +215,19 @@ const KelolaUser = () => {
           {/* tombol action */}
           <div className="px-28 mt-5">
             <div className="flex flex-row">
-              <div className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+              <div
+                onClick={() => createNewUser()}
+                className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80"
+              >
                 <p className="font-semibold text-center">Tambah</p>
               </div>
-              <div className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80">
+              <div onClick={() => updateUser()} className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80">
                 <p className="font-semibold text-center">Edit</p>
               </div>
-              <div className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+              <div
+                onClick={() => deleteUser()}
+                className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80"
+              >
                 <p className="font-semibold text-center">Hapus</p>
               </div>
             </div>
@@ -152,119 +259,67 @@ const KelolaUser = () => {
                 <th className="border border-black w-1/5">Alamat</th>
                 <th className="border border-black w-1/5">Telepon</th>
               </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  1
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Admin
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jamaludin Hanif
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Cikaso
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  085161310017
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  1
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Admin
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jamaludin Hanif
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Cikaso
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  085161310017
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  1
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Admin
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jamaludin Hanif
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Cikaso
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  085161310017
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  1
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Admin
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jamaludin Hanif
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Cikaso
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  085161310017
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  1
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Admin
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jamaludin Hanif
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Cikaso
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  085161310017
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">
-                  1
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Admin
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Jamaludin Hanif
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  Cikaso
-                </td>
-                <td className="border border-black text-center font-semibold">
-                  085161310017
-                </td>
-              </tr>
+              {DataUsers?.map((data, index) => (
+                <>
+                  <tr
+                    key={data?.id_user}
+                    onClick={() => selectUser(data)}
+                    className="hover:bg-slate-200 cursor-pointer"
+                  >
+                    <td className="border border-black py-2 text-center font-semibold">
+                      {data?.id_user}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {data?.tipe_user}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {data?.username}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {data?.alamat}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {data?.telepon}
+                    </td>
+                  </tr>
+                </>
+              ))}
             </table>
           </div>
 
           {/* modal antd */}
           <Modal
-            title="Type User"
+            title="Silahkan pilih tipe user"
             open={IsOpen}
             footer={[]}
             // onOk={handleOk}
             onCancel={handleCancel}
-          ></Modal>
+          >
+            <div
+              onClick={() => {
+                setTypeUser("admin"), handleCancel();
+              }}
+              className="border border-black w-1/2 m-auto rounded-lg py-2 mt-5 hover:opacity-80 cursor-pointer"
+            >
+              <p className="font-semibold text-center">Admin</p>
+            </div>
+            <div
+              onClick={() => {
+                setTypeUser("kasir"), handleCancel();
+              }}
+              className="border border-black w-1/2 m-auto rounded-lg py-2 mt-3 hover:opacity-80 cursor-pointer"
+            >
+              <p className="font-semibold text-center">Kasir</p>
+            </div>
+            <div
+              onClick={() => {
+                setTypeUser("gudang"), handleCancel();
+              }}
+              className="border border-black w-1/2 m-auto rounded-lg py-2 mt-3 hover:opacity-80 cursor-pointer"
+            >
+              <p className="font-semibold text-center">Gudang</p>
+            </div>
+          </Modal>
         </div>
       </div>
     </>

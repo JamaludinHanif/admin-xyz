@@ -2,6 +2,9 @@ import React from "react";
 import SideBar from "../../components/sidebar/SideBar";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { currencyFormatter } from "../../config/currencyFormatter";
+import moment from "moment/moment";
+
 
 const LogActivity = () => {
   // sesionStorage
@@ -17,7 +20,17 @@ const LogActivity = () => {
   // function
   const filter = () => {};
 
-  console.log("ini tangal", Tanggal);
+  const [currentTime, setCurrentTime] = useState(moment());
+
+  // Update the current time every second
+  setTimeout(() => {
+    setCurrentTime(moment());
+  }, 1000);
+
+  let now = currentTime.format('DD/MM/YYYY HH.mm');
+
+
+  console.log("ini tangal", now);
 
   return (
     <>
@@ -28,6 +41,7 @@ const LogActivity = () => {
         <div className="w-4/5">
           <div className="">
             <p className="text-4xl font-bold mt-3 text-center">Log Activity</p>
+            <p>{currentTime.format('DD/MM/YYYY HH.mm')}</p>
           </div>
 
           {/* filter */}
@@ -170,7 +184,6 @@ const LogActivity = () => {
               </tr>
             </table>
           </div>
-
 
         </div>
       </div>

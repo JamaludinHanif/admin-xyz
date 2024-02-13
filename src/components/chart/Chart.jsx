@@ -13,11 +13,11 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const BarChart = () => {
   const data = {
-    labels: ["Mon", "Tue", "Wed", "Thue"],
+    labels: ["Mon", "Tue", "Wed", "Thue", "minggu"],
     datasets: [
       {
         label: "Hari",
-        data: [3, 6, 9, 4],
+        data: [20000, 6, 9, 4, 8],
         backgroundColor: "#60a5fa",
         borderWidth: 1,
         borderColor: "black",
