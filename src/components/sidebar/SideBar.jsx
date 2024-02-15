@@ -1,5 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { API } from "../../config/api";
+import moment from "moment";
+import { message } from "antd";
 
 const SideBar = (type) => {
   // react-router-dom
@@ -7,10 +11,33 @@ const SideBar = (type) => {
 
   // console.log("dari sidebar", type.type);
 
+  // SESSIONSTORAGE
+  const username = sessionStorage.getItem("username");
+
+  // request body
+  const body = {
+    waktu: moment().format("YYYY-MM-DD HH:mm:ss"),
+    aktivitas: "logout",
+    username: username,
+  };
+
   //   function
-  const logout = () => {
-    sessionStorage.clear();
-    navigate("/");
+  const logout = async () => {
+    await axios
+      .post(`${API.BASE_URL}/logs`, body)
+      .then((response) => {
+        console.log("response dari api logout", response?.data);
+        if (response?.data?.status == true) {
+          sessionStorage.clear();
+          navigate("/");
+          message.success("logout berhasil");
+        } else {
+          message.info("logout gagal");
+        }
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
   };
 
   return (
@@ -25,7 +52,7 @@ const SideBar = (type) => {
               </>
             ) : type.type == "kasir" ? (
               <>
-                <p>Kasir</p> 
+                <p>Kasir</p>
               </>
             ) : type.type == "admin" ? (
               <>
@@ -43,7 +70,11 @@ const SideBar = (type) => {
 
           {/* foto */}
           <div className="">
-            <img src="https://www.perawatku.id/img/Group%20341.png" alt="" className="h-40 m-auto mt-5 w-h-40" />
+            <img
+              src="https://www.perawatku.id/img/Group%20341.png"
+              alt=""
+              className="h-40 m-auto mt-5 w-h-40"
+            />
           </div>
 
           {/* other */}

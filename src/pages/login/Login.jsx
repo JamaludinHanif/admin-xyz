@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API } from "../../config/api";
+import moment from "moment";
 
 const Login = () => {
   // react router dom
@@ -24,15 +25,34 @@ const Login = () => {
     password: Password,
   };
 
-  console.log("ini body", body);
+  // console.log("ini body", body);
+
+  const LogActivity = async (userName) => {
+    const body2 = {
+      waktu: moment().format('YYYY-MM-DD HH:mm:ss'),
+      aktivitas: "login",
+      username: userName,
+    };
+    await axios
+      .post(`${API.BASE_URL}/logs`, body2)
+      .then((response) => {
+        console.log("ini response dari api logsss", response?.data);
+        console.log('ini adalah body2', body2)
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
 
   // function login
   const login = async () => {
     await axios
       .post(`${API.BASE_URL}/login`, body)
       .then((response) => {
-        console.log("ini response dari api login", response?.data);
+        // console.log("ini response dari api login", response?.data);
         if (response?.data?.status == true) {
+          LogActivity(response?.data?.username);
+          sessionStorage.setItem('username', response?.data?.username);
           message.success("Login Berhasil");
           if (response?.data?.loginAs == "kasir") {
             navigate("/kelola-transaksi");

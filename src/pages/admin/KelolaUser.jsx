@@ -68,6 +68,18 @@ const KelolaUser = () => {
       });
   };
 
+  const getUserByName = async (userName) => {
+    await axios
+      .get(`${API.BASE_URL}/users/user?name=${userName}`)
+      .then((response) => {
+        console.log("ini respons dari api users", response?.data);
+        setDataUsers(response?.data?.data);
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
   const createNewUser = async () => {
     await axios
       .post(`${API.BASE_URL}/users`, body)
@@ -221,7 +233,10 @@ const KelolaUser = () => {
               >
                 <p className="font-semibold text-center">Tambah</p>
               </div>
-              <div onClick={() => updateUser()} className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80">
+              <div
+                onClick={() => updateUser()}
+                className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80"
+              >
                 <p className="font-semibold text-center">Edit</p>
               </div>
               <div
@@ -240,11 +255,11 @@ const KelolaUser = () => {
                 type="text"
                 value={Search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari....."
+                placeholder="Cari berdasarkan username"
                 className="py-2 rounded-md w-full text-sm bg-gray-200 px-3"
               />
             </div>
-            <div className="w-24 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+            <div onClick={() => getUserByName(Search)} className="w-24 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
               <p className="font-semibold text-sm text-center">Carikan</p>
             </div>
           </div>

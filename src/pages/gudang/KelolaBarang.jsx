@@ -7,6 +7,10 @@ import { message, Modal } from "antd";
 import { API } from "../../config/api";
 import { currencyFormatter } from "../../config/currencyFormatter";
 import moment from "moment";
+import PdfDocument from "../../components/pdfDocument/PdfDocument";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ActionPrint from "../../components/ReactPrint/ActionPrint";
+
 
 const KelolaBarang = () => {
   // sesionStorage
@@ -18,16 +22,16 @@ const KelolaBarang = () => {
 
   // usestate
   const [IsOpen, setIsOpen] = useState();
-  const [Search, setSearch] = useState();
+  const [Search, setSearch] = useState("");
   const [DataProduk, setDataProduk] = useState();
   const [IdProduk, setIdProduk] = useState();
   // form
   const [KodeBarang, setKodeBarang] = useState();
   const [JumlahBarang, setJumlahBarang] = useState();
   const [NamaBarang, setNamaBarang] = useState();
-  const [Satuan, setSatuan] = useState(0);
+  const [Satuan, setSatuan] = useState();
   const [Expired, setExpired] = useState();
-  const [HargaSatuan, setHargaSatuan] = useState(0);
+  const [HargaSatuan, setHargaSatuan] = useState();
 
   // console.log('ini input data', Expired)
 
@@ -39,16 +43,16 @@ const KelolaBarang = () => {
     setIsOpen(false);
   };
 
-    // select product
-    const selectProduct = (data) => {
-      setIdProduk(data?.id_barang);
-      setKodeBarang(data?.kode_barang);
-      setNamaBarang(data?.nama_barang);
-      setExpired(data?.expired_date);
-      setJumlahBarang(data?.jumlah_barang);
-      setSatuan(data?.satuan);
-      setHargaSatuan(data?.harga_satuan);
-    };
+  // select product
+  const selectProduct = (data) => {
+    setIdProduk(data?.id_barang);
+    setKodeBarang(data?.kode_barang);
+    setNamaBarang(data?.nama_barang);
+    setExpired(data?.expired_date);
+    setJumlahBarang(data?.jumlah_barang);
+    setSatuan(data?.satuan);
+    setHargaSatuan(data?.harga_satuan);
+  };
 
   const body = {
     kode_barang: KodeBarang,
@@ -61,7 +65,7 @@ const KelolaBarang = () => {
 
   const getAllProducts = async () => {
     await axios
-      .get(`${API.BASE_URL}/produk`)
+      .get(`${API.BASE_URL}/products`)
       .then((response) => {
         console.log("ini respons dari api users", response?.data);
         setDataProduk(response?.data?.data);
@@ -72,24 +76,30 @@ const KelolaBarang = () => {
   };
 
   const createNewProduct = async () => {
-    await axios
-      .post(`${API.BASE_URL}/produk`, body)
-      .then((response) => {
-        console.log("ini respons dari api users", response?.data);
-        if (response?.data?.status == true) {
-          location.reload();
-        } else {
-          message.error("gagal menambahkan data");
-        }
-      })
-      .catch((error) => {
-        console.error("terjadi kesalahan", error);
-      });
+    if (
+      KodeBarang == undefined ||
+      NamaBarang == undefined ||
+      Expired == undefined ||
+      JumlahBarang == undefined ||
+      Satuan == undefined ||
+      HargaSatuan == undefined
+    ) {
+      message.info("Data tidak boleh ada yang kosong");
+    } else {
+      await axios
+        .post(`${API.BASE_URL}/products`, body)
+        .then((response) => {
+          console.log("ini respons dari api users", response?.data);
+        })
+        .catch((error) => {
+          console.error("terjadi kesalahan", error);
+        });
+    }
   };
 
   const updateProduk = async () => {
     await axios
-      .patch(`${API.BASE_URL}/produk?id=${IdProduk}`, body)
+      .patch(`${API.BASE_URL}/products?id=${IdProduk}`, body)
       .then((response) => {
         console.log("ini response dari api", response?.data);
         if (response?.data?.status == true) {
@@ -105,7 +115,7 @@ const KelolaBarang = () => {
 
   const deleteProduk = async () => {
     await axios
-      .delete(`${API.BASE_URL}/produk?id=${IdProduk}`)
+      .delete(`${API.BASE_URL}/products?id=${IdProduk}`)
       .then((response) => {
         console.log("ini response dari api", response?.data);
         if (response?.data?.status == true) {
@@ -117,6 +127,34 @@ const KelolaBarang = () => {
       .catch((error) => {
         console.error("terjadi kesalahan", error);
       });
+  };
+
+  const getProductByname = async (search) => {
+    await axios
+      .get(`${API.BASE_URL}/products/product?name=${search}`)
+      .then((response) => {
+        console.log("ini respons dari api users", response?.data);
+        setDataProduk(response?.data?.data);
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
+
+  //   handle live seacrh
+  const handleInputChange = (e) => {
+    const search = e.target.value;
+    setSearch(search);
+
+    if (search !== "") {
+      getProductByname(search);
+    } else {
+      getAllProducts();
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   useEffect(() => {
@@ -172,10 +210,20 @@ const KelolaBarang = () => {
               <div className="w-1/2 mr-10">
                 <p className="font-semibold mb-1">Satuan</p>
                 <div
-                  // onClick={handleOpen}
+                  onClick={handleOpen}
                   className="bg-gray-200 text-sm w-full py-2 rounded-md cursor-pointer px-3"
                 >
-                  <p className="">Botol</p>
+                  <p className="">
+                    {Satuan == "botol" ? (
+                      <>Botol</>
+                    ) : Satuan == "kardus" ? (
+                      <>Kardus</>
+                    ) : Satuan == "pcs" ? (
+                      <>Pcs</>
+                    ) : (
+                      <>Silahkan Pilih Jenis Satuan Barang</>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
@@ -206,14 +254,38 @@ const KelolaBarang = () => {
           {/* tombol action */}
           <div className="px-28 mt-5">
             <div className="flex flex-row">
-              <div onClick={() => createNewProduct()} className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+              <div
+                onClick={() => createNewProduct()}
+                className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80"
+              >
                 <p className="font-semibold text-center">Tambah</p>
               </div>
-              <div onClick={() => updateProduk()} className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80">
+              <div
+                // onClick={() => handlePrint()}
+                onClick={() => updateProduk()}
+                className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80"
+              >
                 <p className="font-semibold text-center">Edit</p>
               </div>
-              <div onClick={() => deleteProduk()} className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+              <div
+                onClick={() => deleteProduk()}
+                className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80"
+              >
                 <p className="font-semibold text-center">Hapus</p>
+              </div>
+              {/* tes */}
+              <PDFDownloadLink
+              document={<PdfDocument dataPdf={NamaBarang} />}
+                className="w-40 bg-blue-300 mx-5 py-2 rounded-lg cursor-pointer hover:opacity-80"
+              >
+                <p className="font-semibold text-center">Downlload</p>
+              </PDFDownloadLink>
+              {/* tes */}
+              <div className="">
+                <ActionPrint />
+                {/* <p className="" onClick={() => handlePrint()}>
+                  tes
+                </p> */}
               </div>
             </div>
           </div>
@@ -228,7 +300,7 @@ const KelolaBarang = () => {
             <input
               type="text"
               value={Search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Cari....."
               className="py-2 rounded-md w-1/3 text-sm bg-gray-200 px-3"
             />
@@ -283,7 +355,11 @@ const KelolaBarang = () => {
               </tr>
               {DataProduk?.map((produk, index) => (
                 <>
-                  <tr onClick={() => selectProduct(produk)} className="cursor-pointer hover:bg-slate-200" key={produk?.id_barang}>
+                  <tr
+                    onClick={() => selectProduct(produk)}
+                    className="cursor-pointer hover:bg-slate-200"
+                    key={produk?.id_barang}
+                  >
                     <td className="border border-black py-2 text-center font-semibold">
                       {produk?.id_barang}
                     </td>
@@ -294,7 +370,7 @@ const KelolaBarang = () => {
                       {produk?.nama_barang}
                     </td>
                     <td className="border border-black text-center font-semibold">
-                      {moment(produk?.expired_date).format('DD/MM/YYYY')}
+                      {moment(produk?.expired_date).format("DD/MM/YYYY")}
                     </td>
                     <td className="border border-black text-center font-semibold">
                       {produk?.jumlah_barang}
@@ -310,6 +386,38 @@ const KelolaBarang = () => {
               ))}
             </table>
           </div>
+
+          <Modal
+            title="Silahkan pilih satuan barang"
+            open={IsOpen}
+            footer={[]}
+            onCancel={handleCancel}
+          >
+            <div
+              onClick={() => {
+                setSatuan("botol"), handleCancel();
+              }}
+              className="border border-black w-1/2 m-auto rounded-lg py-2 mt-5 hover:opacity-80 cursor-pointer"
+            >
+              <p className="font-semibold text-center">Botol</p>
+            </div>
+            <div
+              onClick={() => {
+                setSatuan("kardus"), handleCancel();
+              }}
+              className="border border-black w-1/2 m-auto rounded-lg py-2 mt-3 hover:opacity-80 cursor-pointer"
+            >
+              <p className="font-semibold text-center">Kardus</p>
+            </div>
+            <div
+              onClick={() => {
+                setSatuan("pcs"), handleCancel();
+              }}
+              className="border border-black w-1/2 m-auto rounded-lg py-2 mt-3 hover:opacity-80 cursor-pointer"
+            >
+              <p className="font-semibold text-center">Pcs</p>
+            </div>
+          </Modal>
         </div>
       </div>
     </>

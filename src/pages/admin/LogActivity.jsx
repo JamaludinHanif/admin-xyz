@@ -4,21 +4,46 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { currencyFormatter } from "../../config/currencyFormatter";
 import moment from "moment/moment";
-
+import axios from "axios";
+import { API } from "../../config/api";
 
 const LogActivity = () => {
   // sesionStorage
   let type = sessionStorage.getItem("type");
-  console.log("ini type user", type);
+  // console.log("ini type user", type);
 
   // react-router-dom
   const navigate = useNavigate();
 
   // usestate
-  const [Tanggal, setTanggal] = useState();
+  const [Tanggal, setTanggal] = useState(moment());
+  const [DataLogs, setDataLogs] = useState();
 
   // function
-  const filter = () => {};
+  const filter = async (tanggal) => {
+    await axios
+    .get(`${API.BASE_URL}/logs/log?date=${tanggal} __:__:__`)
+    .then((response) => {
+      console.log('ini response api filter', response?.data)
+      setDataLogs(response?.data?.data)
+    })
+    .catch((error) => {
+      console.error('terjadi kesalahan', error)
+    })
+  };
+
+  // get data
+  const getAllLogs = async () => {
+    await axios
+      .get(`${API.BASE_URL}/logs`)
+      .then((response) => {
+        console.log("ini respons dari api getAllLogs", response?.data);
+        setDataLogs(response?.data?.data);
+      })
+      .catch((error) => {
+        console.error("terjadi kesalahan", error);
+      });
+  };
 
   const [currentTime, setCurrentTime] = useState(moment());
 
@@ -27,10 +52,13 @@ const LogActivity = () => {
     setCurrentTime(moment());
   }, 1000);
 
-  let now = currentTime.format('DD/MM/YYYY HH.mm');
+  let now = currentTime.format("DD/MM/YYYY HH.mm");
 
+  // console.log("ini tangal", moment(Tanggal).format('YYYY-MM-DD'));
 
-  console.log("ini tangal", now);
+  useEffect(() => {
+    getAllLogs();
+  }, []);
 
   return (
     <>
@@ -41,11 +69,11 @@ const LogActivity = () => {
         <div className="w-4/5">
           <div className="">
             <p className="text-4xl font-bold mt-3 text-center">Log Activity</p>
-            <p>{currentTime.format('DD/MM/YYYY HH.mm')}</p>
+            {/* <p>{currentTime.format("DD/MM/YYYY HH.mm")}</p> */}
           </div>
 
           {/* filter */}
-          <div className="ml-5 mt-16">
+          <div className="ml-10 mt-16">
             <p className="font-semibold mb-2 text-lg">Pilih Tanggal</p>
             <div className="flex">
               <input
@@ -57,7 +85,7 @@ const LogActivity = () => {
                 id=""
               />
               <div
-                onClick={() => filter(Tanggal)}
+                onClick={() => filter(moment(Tanggal).format('YYYY-MM-DD'))}
                 className="bg-blue-300 w-36 py-2 ml-5 rounded-lg cursor-pointer hover:opacity-80"
               >
                 <p className="text-center font-semibold">Filter</p>
@@ -74,117 +102,26 @@ const LogActivity = () => {
                 <th className="border border-black w-4/12">Waktu</th>
                 <th className="border border-black w-3/12">Aktifitas</th>
               </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
-              <tr>
-                <td className="border border-black py-2 text-center font-semibold">1</td>
-                <td className="border border-black text-center font-semibold">Admin</td>
-                <td className="border border-black text-center font-semibold">03/06/2023 14:23</td>
-                <td className="border border-black text-center font-semibold">Login</td>
-              </tr>
+              {DataLogs?.map((logs, index) => (
+                <>
+                  <tr key={logs?.id_log}>
+                    <td className="border border-black py-2 text-center font-semibold">
+                      {logs?.id_log}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {logs?.username}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {moment(logs?.waktu).format("DD/MM/YYYY HH.mm")}
+                    </td>
+                    <td className="border border-black text-center font-semibold">
+                      {logs?.aktivitas}
+                    </td>
+                  </tr>
+                </>
+              ))}
             </table>
           </div>
-
         </div>
       </div>
     </>
