@@ -6,6 +6,9 @@ import axios from "axios";
 import { API } from "../../config/api";
 import { currencyFormatter } from "../../config/currencyFormatter";
 import { message, Modal } from "antd";
+import ActionPrint from "../../components/ReactPrint/ActionPrint";
+import PdfDocument from "../../components/pdfDocument/PdfDocument";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 const KelolaTransaksi = () => {
   // sesionStorage
@@ -265,12 +268,13 @@ const KelolaTransaksi = () => {
             </div>
             {/* action */}
             <div className="w-1/2 flex flex-row justify-end">
-              <div className="w-40 bg-blue-300 py-2 mx-5 rounded-lg cursor-pointer hover:opacity-80">
-                <p className="font-semibold text-center">Print</p>
-              </div>
-              <div className="w-40 bg-blue-300 py-2 rounded-lg cursor-pointer hover:opacity-80">
+              <ActionPrint />
+              <PDFDownloadLink
+                document={<PdfDocument dataPdf={total} />}
+                className="w-40 bg-blue-300 mx-5 py-2 rounded-lg cursor-pointer hover:opacity-80"
+              >
                 <p className="font-semibold text-center">Simpan</p>
-              </div>
+              </PDFDownloadLink>
             </div>{" "}
           </div>
 

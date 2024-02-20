@@ -1,0 +1,75 @@
+body {
+  /* font-family: Arial, sans-serif; */
+  margin: 0;
+  padding: 0;
+  background-color: #f2f2f2;
+}
+.invoice-container {
+  width: 21cm;
+  min-height: 29.7cm;
+  padding: 2cm;
+  margin: 0 auto;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.invoice-header {
+  background-color: #87ceeb; /* Biru Muda */
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  border-radius: 5px 5px 0 0;
+}
+.invoice-header h1 {
+  margin: 0;
+}
+.invoice-body {
+  padding: 20px;
+}
+.invoice-item {
+  margin-bottom: 10px;
+}
+.invoice-item span {
+  display: inline-block;
+  width: 200px;
+}
+.invoice-footer {
+  margin-top: 300px;
+  padding: 20px;
+  background-color: #4169e1; /* Biru Agak Tua */
+  color: #fff;
+  border-radius: 0 0 5px 5px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+thead th {
+  background-color: #63a4ff; /* Warna aksen biru muda */
+  color: #fff;
+}
+
+tbody td:first-child {
+  width: 50%;
+}
+
+tbody td:nth-child(2),
+tbody td:nth-child(3),
+tbody td:nth-child(4) {
+  width: 16.67%;
+}
+
+tbody td:last-child {
+  width: 16.66%;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
